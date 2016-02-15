@@ -1,36 +1,42 @@
-/**
- * This API is designed to provide a feed of news from users
- * 
- * Author: Diego M. Silva
- */
-
-
-// IMPORTS
+var express = require('express');
+var parseString = require('xml2js').parseString;
 var http = require('http');
-var events = require('events');
-var url = require('url');
-var fs = require("fs");
 
+var app = express();
+var url = "http://bleacherreport.com/articles/feed?tag_id=215";
 
-// ATTRIBUTES
-var eventEmitter = new events.EventEmitter();
+function xmlToJson(url, callback) {
+  var req = http.get(url, function(res) {
+    var xml = '';
+    
+    res.on('data', function(chunk) {
+      xml += chunk;
+    });
 
+    res.on('error', function(e) {
+      callback(e, null);
+    }); 
 
-// SERVER
-/**
- * Creates an HTTP server to allow http requests
- */
-http.createServer(function (req, response){
-    
-    // Parse the request containing file name
-    var pathname = url.parse(req.url).pathname;
-    response.writeHead(200, {'Content-Type': 'text/plain'});
-    
-    // Print the name of the file for which request is made.
-    console.log("Request for " + pathname + " received.");
-    
-    
-    
-    
-    
-}).listen(process.env.PORT, process.env.IP);
+    res.on('timeout', function(e) {
+      callback(e, null);
+    }); 
+
+    res.on('end', function() {
+      parseString(xml, function(err, result) {
+        callback(null, result);
+      });
+    });
+  });
+}
+
+app.get('/lfcfeeds', function (req, res) {
+    xmlToJson(url, function (err, data) {
+        if (err) {
+            return console.err(err);
+        }
+        res.send(data);
+    });
+});
+
+app.listen(3000);
+console.log('Listening on port 3000');
