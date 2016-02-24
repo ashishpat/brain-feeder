@@ -38,5 +38,8 @@ app.get('/lfcfeeds', function (req, res) {
     });
 });
 
-app.listen(3000);
-console.log('Listening on port 3000');
+/*For Azure Deployment*/
+app.listen(process.env.port);
+
+//app.listen(3000);
+//console.log('Listening on port 3000');
