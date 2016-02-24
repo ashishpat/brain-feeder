@@ -34,7 +34,7 @@ app.get('/lfcfeeds', function (req, res) {
         if (err) {
             return console.err(err);
         }
-        res.send(parseString);
+        res.send(data);
     });
 });
 
